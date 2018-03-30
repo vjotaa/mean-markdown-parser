@@ -1,0 +1,17 @@
+<div class="container-fluid margin-xy">
+  <div class="row">
+    <div class="col-12">
+      <button [routerLink]="['/create-document']" type="button" class="btn btn-outline-info">New document</button>
+    </div>
+  </div>
+</div>
+<div class="container-fluid">
+  <div class="row">
+    <div class="middle-height border-bg col-2">
+      <app-documents></app-documents>
+    </div>
+    <div class="col-10">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,19 @@
+<div class="row">
+  <div class="col-12">
+    <p class="botton">List of documents</p>
+
+    <div *ngFor="let item of documents" class="botton col-12">
+      <div [routerLink]="['/document',item._id]" class="center row">
+        <div class="col-2">
+          <i class="fas fa-file-alt"></i>
+        </div>
+        <div class="col-10">
+          <div>
+            <p class="no-margin">{{item.title}}</p>
+          </div>
+          <span class="date">{{item.date| timeAgo}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

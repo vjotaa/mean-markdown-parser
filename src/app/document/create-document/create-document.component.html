@@ -1,0 +1,23 @@
+<div class="row">
+  <div class="botton border col-6">
+    <form #formDocument="ngForm" (ngSubmit)="onSubmit()" action="">
+      <div class="form-group">
+        <input class="form-control" placeholder="Title of the document" type="text" name="title" required #title="ngModel" [(ngModel)]="document.title">
+      </div>
+      <div class="form-group">
+        <textarea class="form-control" name="text" #text="ngModel" [(ngModel)]="document.text" id="markdown-area" cols="30" rows="30"
+          placeholder="Write your text..." (keyup)="updateOuput($event.target.value)">
+          </textarea>
+      </div>
+    </form>
+  </div>
+  <div class="botton border col-6">
+    <h5>{{document.title}}</h5>
+    <div [innerHtml]="convertedText"></div>
+  </div>
+  <div class="col-12">
+    <div class="form-group">
+      <button type="submit" (click)="onSubmit()" class="btn btn-outline-info">Create document</button>
+    </div>
+  </div>
+</div>

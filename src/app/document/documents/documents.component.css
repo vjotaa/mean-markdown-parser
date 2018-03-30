@@ -1,0 +1,16 @@
+p {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.center {
+  padding: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.center:focus {
+  background: rgba(1, 1, 1, 0.1);
+  border-color: none;
+  border: none;
+}
