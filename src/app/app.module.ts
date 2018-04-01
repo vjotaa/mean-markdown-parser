@@ -10,6 +10,7 @@ import { DocumentDetailComponent } from './document/document-detail/document-det
 import { AppRoutingModule } from './app-routing.module';
 import { CreateDocumentComponent } from './document/create-document/create-document.component';
 import { TimeAgoPipe } from 'time-ago-pipe';
+import { UpdateDocumentComponent } from './document/update-document/update-document.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { TimeAgoPipe } from 'time-ago-pipe';
     DocumentsComponent,
     DocumentDetailComponent,
     CreateDocumentComponent,
-    TimeAgoPipe
+    TimeAgoPipe,
+    UpdateDocumentComponent
   ],
   imports: [BrowserModule, HttpModule, FormsModule, AppRoutingModule],
   providers: [DataService],
