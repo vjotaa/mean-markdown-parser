@@ -31,7 +31,7 @@ export class CreateDocumentComponent implements OnInit {
       if (response) {
         this._dataService.getDocuments().subscribe(response => {
           if (response) {
-            this._dataService.setState(response.documents);
+            this._dataService.setState(response);
           }
         });
       }

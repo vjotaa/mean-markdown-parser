@@ -15,15 +15,11 @@ export class DocumentsComponent implements OnInit, OnDestroy {
   public document: Document;
   private subscription: Subscription;
   message;
-  url;
   constructor(private _dataService: DataService) {
-    this.subscription = this._dataService
-      .getState()
-      .subscribe(selectionFormatState => {
-        this.documents = selectionFormatState;
-      });
+    this.subscription = this._dataService.getState().subscribe(data => {
+      this.documents = data;
+    });
 
-    this.url = 'http://localhost:3000/api/';
     this.document = new Document('', '', '');
   }
 
@@ -32,15 +28,12 @@ export class DocumentsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    console.log(this.message);
     this.getDocuments();
   }
 
   getDocuments() {
     this._dataService.getDocuments().subscribe(response => {
-      !response.documents
-        ? console.error('error')
-        : (this.documents = response.documents);
+      !response ? console.error('error') : (this.documents = response);
     });
   }
 }
