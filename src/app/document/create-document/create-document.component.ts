@@ -10,16 +10,20 @@ import { Router } from '@angular/router';
   providers: [MarkdownParserService]
 })
 export class CreateDocumentComponent implements OnInit {
-  public document;
-  public convertedText;
-  public url;
+  document: Document = {
+    title: '',
+    text: '',
+    date: ''
+  };
+  convertedText;
+  url;
+
   constructor(
     private md: MarkdownParserService,
     private _dataService: DataService,
     private _router: Router
   ) {
     this.url = 'http://localhost:3000/api/';
-    this.document = new Document('', '', '');
   }
   updateOuput(mdText: string) {
     this.convertedText = this.md.convert(mdText);
@@ -27,18 +31,14 @@ export class CreateDocumentComponent implements OnInit {
   ngOnInit() {}
 
   onSubmit() {
-    this._dataService.createDocument(this.document).subscribe(response => {
-      if (response) {
-        this._dataService.getDocuments().subscribe(response => {
-          if (response) {
-            this._dataService.setState(response);
-          }
-        });
-      }
-    });
-    this.convertedText = '';
-    this.document.title = '';
-    this.document.text = '';
+    this._dataService
+      .createDocument(this.document as Document)
+      .subscribe(response => {
+        if (response) {
+          const documents = this._dataService.getDocuments().pipe();
+          this._dataService.setState(documents);
+        }
+      });
     this._router.navigate(['/']);
   }
 }

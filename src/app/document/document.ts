@@ -1,3 +1,5 @@
-export class Document {
-  constructor(public title: string, public text: string, public date: string) {}
+export interface Document {
+  title: string;
+  text: string;
+  date: string;
 }

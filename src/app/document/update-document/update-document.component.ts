@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { MarkdownParserService } from '../../markdown-parser.service';
 import { DataService } from '../../data.service';
+import { Document } from '../document';
 @Component({
   selector: 'app-update-document',
   templateUrl: './update-document.component.html',
@@ -9,8 +10,12 @@ import { DataService } from '../../data.service';
   providers: [MarkdownParserService]
 })
 export class UpdateDocumentComponent implements OnInit {
+  document: Document = {
+    title: '',
+    text: '',
+    date: ''
+  };
   public convertedText;
-  public document;
   constructor(
     private _route: ActivatedRoute,
     private md: MarkdownParserService,
@@ -20,56 +25,44 @@ export class UpdateDocumentComponent implements OnInit {
 
   ngOnInit() {
     this.getDocument();
+    this.paramsId();
   }
 
   updateOuput(mdText: string) {
     this.convertedText = this.md.convert(mdText);
   }
 
-  onUpdate() {
-    this._route.params.forEach((params: Params) => {
-      let id = params['id'];
-      this._dataService
-        .updateDocument(id, this.document)
-        .subscribe(response => {
-          if (response) {
-            this._dataService.getDocuments().subscribe(response => {
-              if (response) {
-                this._dataService.setState(response);
-              }
-            });
-            this._router.navigate(['document/', id]);
-          }
-        });
+  onUpdate(): void {
+    const id = this.paramsId();
+    this._dataService.updateDocument(id, this.document).subscribe(response => {
+      if (response) {
+        if (response) {
+          const documents = this._dataService.getDocuments().pipe();
+          this._dataService.setState(documents);
+        }
+        this._router.navigate(['document/', id]);
+      }
     });
   }
 
-  getDocument() {
-    this._route.params.forEach((params: Params) => {
-      let id = params['id'];
-      this._dataService.getDocument(id).subscribe(
-        response => {
-          if (!response) {
-            this._router.navigate(['/']);
-          } else {
-            this.document = response;
-            this.convertedText = this.md.convert(response.text);
-          }
-        },
-        error => {
-          const errorMessage = <any>error;
-          if (errorMessage != null) {
-            const body = JSON.parse(error._body);
-          }
-        }
-      );
-    });
+  getDocument(): void {
+    const id = this.paramsId();
+    this._dataService.getDocument(id).subscribe(
+      doc => {
+        this.document = doc;
+        this.convertedText = this.md.convert(doc.text);
+      },
+      err => console.log(err)
+    );
   }
 
   onCancel() {
-    this._route.params.forEach((params: Params) => {
-      let id = params['id'];
-      this._router.navigate(['document/', id]);
-    });
+    const id = this.paramsId();
+    this._router.navigate(['document/', id]);
+  }
+
+  private paramsId() {
+    const id = this._route.snapshot.paramMap.get('id');
+    return id;
   }
 }

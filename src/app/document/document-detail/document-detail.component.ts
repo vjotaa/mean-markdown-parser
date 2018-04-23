@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { DataService } from '../../data.service';
 import { MarkdownParserService } from '../../markdown-parser.service';
+import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { Document } from '../document';
 
 @Component({
   selector: 'app-document-detail',
@@ -10,10 +13,11 @@ import { MarkdownParserService } from '../../markdown-parser.service';
   providers: [MarkdownParserService]
 })
 export class DocumentDetailComponent implements OnInit {
-  public url;
-  public document;
-  public edit: boolean = false;
-  public convertedText: string;
+  url;
+  document: Document;
+  edit = false;
+  convertedText: string;
+  errorMsg;
   constructor(
     private _route: ActivatedRoute,
     private md: MarkdownParserService,
@@ -21,24 +25,15 @@ export class DocumentDetailComponent implements OnInit {
     private _dataService: DataService
   ) {}
 
-  getDocument() {
+  getDocument(): void {
     this._route.params.forEach((params: Params) => {
-      let id = params['id'];
+      const id = params['id'];
       this._dataService.getDocument(id).subscribe(
-        response => {
-          if (!response) {
-            this._router.navigate(['/']);
-          } else {
-            this.document = response;
-            this.convertedText = this.md.convert(response.text);
-          }
+        doc => {
+          this.document = doc;
+          this.convertedText = this.md.convert(doc.text);
         },
-        error => {
-          const errorMessage = <any>error;
-          if (errorMessage != null) {
-            const body = JSON.parse(error._body);
-          }
-        }
+        err => console.log(err)
       );
     });
   }
@@ -48,14 +43,13 @@ export class DocumentDetailComponent implements OnInit {
   }
   onDelete() {
     this._route.params.forEach((params: Params) => {
-      let id = params['id'];
+      const id = params['id'];
       this._dataService.deleteDocument(id).subscribe(response => {
         if (response) {
-          this._dataService.getDocuments().subscribe(response => {
-            if (response) {
-              this._dataService.setState(response);
-            }
-          });
+          if (response) {
+            const documents = this._dataService.getDocuments().pipe();
+            this._dataService.setState(documents);
+          }
           this._router.navigate(['/']);
         }
       });

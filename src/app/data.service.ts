@@ -1,11 +1,17 @@
 import { Injectable } from '@angular/core';
-import { Headers, Http, RequestOptions } from '@angular/http';
-import 'rxjs/add/operator/map';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Document } from './document/document';
-import { Subject } from 'rxjs/Subject';
-import { Observable } from 'rxjs/Observable';
+// tslint:disable-next-line:import-blacklist
+import { Observable, Subject, of } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
+import { DocumentDetailComponent } from './document/document-detail/document-detail.component';
+
+const httpOptions = {
+  headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+};
 @Injectable()
 export class DataService {
+  public url = 'http://localhost:5000';
   private selectionFormatState = new Subject<any>();
 
   setState(state: any) {
@@ -15,54 +21,62 @@ export class DataService {
   getState(): Observable<any> {
     return this.selectionFormatState.asObservable();
   }
-  public url: string;
-  constructor(private http: Http) {
-    this.url = 'http://localhost:3000/';
-  }
+  constructor(private http: HttpClient) {}
 
-  getDocument(id: string) {
-    let headers = new Headers({
-      'Content-Type': 'application/json'
-    });
-    let options = new RequestOptions({ headers: headers });
-    return this.http.get('document/' + id, options).map(res => res.json());
-  }
-  updateDocument(id: string, document: Document) {
-    let params = JSON.stringify(document);
-    let headers = new Headers({
-      'Content-Type': 'application/json'
-    });
+  getDocument(id: string): Observable<Document> {
+    const url = `${this.url}/document/${id}`;
     return this.http
-      .put('update-document/' + id, params, { headers: headers })
-      .map(res => res.json());
+      .get<Document>(url)
+      .pipe(
+        tap(_ => console.log(`fetched document id=${id}`)),
+        catchError(this.handleError<Document>(`getDoc id=${id}`))
+      );
   }
 
-  createDocument(document: Document) {
-    let params = JSON.stringify(document);
-    let headers = new Headers({
-      'Content-Type': 'application/json'
-    });
+  getDocuments(): Observable<Document[]> {
+    const url = `${this.url}/documents`;
     return this.http
-      .post('create-document', params, { headers: headers })
-      .map(res => res.json());
+      .get<Document[]>(url)
+      .pipe(
+        tap(docs => console.log(`fetched docs`)),
+        catchError(this.handleError('getDocs', []))
+      );
   }
 
-  getDocuments() {
-    let headers = new Headers({
-      'Content-Type': 'application/json'
-    });
-    let options = new RequestOptions({ headers: headers });
-    return this.http.get('documents/', options).map(res => res.json());
-  }
-
-  deleteDocument(id: string) {
-    let headers = new Headers({
-      'Content-type': 'application/json'
-    });
-
-    let options = new RequestOptions({ headers: headers });
+  createDocument(document: Document): Observable<Document> {
+    const url = `${this.url}/create-document`;
     return this.http
-      .delete('delete-document/' + id, options)
-      .map(res => res.json());
+      .post<Document>(url, document, httpOptions)
+      .pipe(
+        tap((doc: Document) => console.log(`added doc`)),
+        catchError(this.handleError<Document>('addDoc'))
+      );
+  }
+
+  updateDocument(id: string, document: Document): Observable<any> {
+    const url = `${this.url}/update-document/${id}`;
+    return this.http
+      .put(url, document, httpOptions)
+      .pipe(
+        tap(_ => console.log(`updated document id=${id}`)),
+        catchError(this.handleError<any>('updateDoc'))
+      );
+  }
+
+  deleteDocument(id: string): Observable<Document> {
+    const url = `${this.url}/delete-document/${id}`;
+    return this.http
+      .delete<Document>(url, httpOptions)
+      .pipe(
+        tap(_ => console.log(`deleted doc id=${id}`)),
+        catchError(this.handleError<Document>('deleteHero'))
+      );
+  }
+
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+      console.error(error);
+      return of(result as T);
+    };
   }
 }

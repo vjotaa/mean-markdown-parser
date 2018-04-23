@@ -1,26 +1,22 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { DataService } from '../../data.service';
 import { Document } from '../document';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription, Observable } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 @Component({
   selector: 'app-documents',
   templateUrl: './documents.component.html',
   styleUrls: ['./documents.component.css']
 })
 export class DocumentsComponent implements OnInit, OnDestroy {
-  convertedText: string;
-  create: boolean = false;
-  viewDetail: boolean = false;
-  public documents: Document;
-  public document: Document;
+  errorMsg: string;
+  documents$: Observable<Document[]>;
   private subscription: Subscription;
   message;
   constructor(private _dataService: DataService) {
     this.subscription = this._dataService.getState().subscribe(data => {
-      this.documents = data;
+      this.documents$ = data;
     });
-
-    this.document = new Document('', '', '');
   }
 
   ngOnDestroy() {
@@ -32,8 +28,12 @@ export class DocumentsComponent implements OnInit, OnDestroy {
   }
 
   getDocuments() {
-    this._dataService.getDocuments().subscribe(response => {
-      !response ? console.error('error') : (this.documents = response);
-    });
+    this.errorMsg = '';
+    this.documents$ = this._dataService.getDocuments().pipe(
+      catchError(errorMessage => {
+        this.errorMsg = errorMessage;
+        return [];
+      })
+    );
   }
 }
