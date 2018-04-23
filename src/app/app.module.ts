@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
@@ -21,7 +21,7 @@ import { UpdateDocumentComponent } from './document/update-document/update-docum
     TimeAgoPipe,
     UpdateDocumentComponent
   ],
-  imports: [BrowserModule, HttpModule, FormsModule, AppRoutingModule],
+  imports: [BrowserModule, HttpClientModule, FormsModule, AppRoutingModule],
   providers: [DataService],
   bootstrap: [AppComponent]
 })
